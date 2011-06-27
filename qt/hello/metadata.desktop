@@ -1,0 +1,17 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Hello World Example
+Name[tr]=Rafael Sobek
+Type=Service
+ServiceTypes=Plasma/Applet
+X-Plasma-API=python
+X-Plasma-MainScript=code/main.py
+Icon=applications
+
+X-KDE-PluginInfo-Author=Rafael Sobek
+X-KDE-PluginInfo-Email=info@test.org
+X-KDE-PluginInfo-Name=helloWorld
+X-KDE-PluginInfo-Version=0.1
+X-KDE-PluginInfo-Website=http://developers-blog.org
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=LGPL

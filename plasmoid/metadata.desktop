@@ -1,0 +1,17 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=SSH Control panel
+Type=Service
+ServiceTypes=Plasma/Applet
+Icon=applications-internet
+X-Plasma-API=python
+X-Plasma-MainScript=code/main.py
+X-KDE-PluginInfo-Author=Matthieu Muffato
+X-KDE-PluginInfo-Email=muffato@ebi.ac.uk
+X-KDE-PluginInfo-Name=sshpanel
+X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-Website=http://plasma.kde.org/
+X-KDE-PluginInfo-Category=Internet
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=GPL
+X-KDE-PluginInfo-EnabledByDefault=true

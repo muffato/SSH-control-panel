@@ -1,0 +1,28 @@
+[Desktop Entry]
+ #Encoding of this file
+ Encoding=UTF-8
+ #The name to be shown in the 'Add Widgets' dialog
+ Name=Battery Graph
+ #Tells KDE this is provides the 'Plasma applet' 
+ ServiceTypes=Plasma/Applet
+ #Tells KDE this is a service of sorts
+ Type=Service
+ #The icon to show in the 'Add Widgets' dialog
+ Icon=battery
+ #The language your plugin is written in
+ X-Plasma-API=python
+ #The main entrypoint for your plasmoid
+ X-Plasma-MainScript=code/main.py
+ 
+ 
+ X-KDE-PluginInfo-Author=John Doe
+ X-KDE-PluginInfo-Email=j.doe@example.com
+ #The internal name of the plasmoid. Your plasmoid gets installed into ~/.kde/share/apps/plasma/<Name>/
+ X-KDE-PluginInfo-Name=powerchart
+ X-KDE-PluginInfo-Version=pre0.1
+ X-KDE-PluginInfo-Website=http://plasma.kde.org/
+ X-KDE-PluginInfo-Category=Examples
+ X-KDE-PluginInfo-Depends=
+ X-KDE-PluginInfo-License=GPL
+ #Tells KDE if this plasmoid should be available by default, or if the user needs to jump through hoops to enable it.
+ X-KDE-PluginInfo-EnabledByDefault=true
