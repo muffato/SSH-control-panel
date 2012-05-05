@@ -20,72 +20,179 @@ class ControlPanelGUI(QtGui.QWidget):
 		QtGui.QWidget.__init__(self, parent)
 		QtGui.QToolTip.setFont(QtGui.QFont('OldEnglish', 10))
 
-		self.setFixedSize(120*len(config['networks']), 285)
+		self.setFixedSize(140*len(config['networks']), 320)
 		self.rt = rt
 		rt.gui = self
 
-		self.grpTunnel = {}
 		self.grpMount = {}
 
 		layout = QHBoxLayout()
+		menu = QMenu(self)
 		for (groupname,conf) in config['networks']:
 			groupBox = QGroupBox(groupname)
 			boxLayout = QVBoxLayout()
+			subMenu = menu.addMenu(groupname)
+			subMenu.setSeparatorsCollapsible(False)
 
 			if 'tunnels' in conf:
-				self.grpTunnel[groupname] = self.addOptions(boxLayout, groupname, conf['tunnels'])
-
-			if 'mounts' in conf:
-				self.grpMount[groupname] = self.addOptions2(boxLayout, groupname, conf['mounts'])
-				self.grpMount[groupname].setEnabled(False)
+				grpTunnel = self.addTunnelOptions(boxLayout, groupname, conf['tunnels'], subMenu)
+				if 'mounts' in conf:
+					self.grpMount[groupname] = self.addMountOptions(grpTunnel.layout(), groupname, conf['mounts'], subMenu)
+				self.rt.updateTunnel(groupname, None, True)
 
 			boxLayout.addStretch()
+
 			if 'mounts_direct' in conf:
-				self.addOptions2(boxLayout, groupname, conf['mounts_direct'])
+				subMenu.addSeparator().setText('Mounts')
+				self.addMountOptions(boxLayout, groupname, conf['mounts_direct'], subMenu)
 
 			groupBox.setLayout(boxLayout)
 			layout.addWidget(groupBox)
 
+		menu.addSeparator()
 		superLayout = QVBoxLayout()
 		superLayout.addLayout(layout)
 		btn = QPushButton("reset")
-		self.connect(btn, SIGNAL("pressed()"), callWithAddParams(self.rt.network.updateTunnels, ()))
+		self.connect(btn, SIGNAL("pressed()"), callWithAddParams(self.rt.network.updateAllTunnels, ()))
+		act = menu.addAction(QIcon.fromTheme("view-refresh"), "reset", btn, SLOT("click()"))
+		btn.addAction(act)
 		superLayout.addWidget(btn)
 		self.setLayout(superLayout)
 		self.connect(self, SIGNAL("close()"), callWithAddParams(self.rt.close, ()))
+		menu.addAction(QIcon.fromTheme("window-close"), "Quit", self, SLOT("close()"))
 
+		trayIcon = QSystemTrayIcon(self)
+		self.connect(trayIcon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), callWithAddParams(self.trayClick, ()))
+
+		trayIcon.setToolTip('SSH control panel')
 		self.setWindowTitle('SSH control panel')
 
-	def addOptions(self, boxLayout, groupname, conf):
+		icon = QIcon.fromTheme("secure-card")
+		app.setWindowIcon(icon)
+		trayIcon.setIcon(icon)
 
-		groupG = QGroupBox("SSH tunnel")
-		groupG.setCheckable(True)
-		groupG.setChecked(False)
-		self.connect(groupG, SIGNAL("toggled(bool)"), callWithAddParams(self.rt.switchTunnel, (groupname,)))
+		trayIcon.setContextMenu(menu)
+		trayIcon.show()
+
+
+	def trayClick(self, reason):
+		if reason == QSystemTrayIcon.Trigger:
+			self.setVisible(not self.isVisible())
+
+	def addTunnelOptions(self, boxLayout, groupname, conf, menu):
+
+		# Groups
+		groupG = QGroupBox("Tunnel")
 		tmpLayout = QVBoxLayout()
-		for (host,displayname) in conf:
-			qrcRadioButton = QRadioButton(displayname)
-			qrcRadioButton.setObjectName(host)
-			if len(conf) == 1:
-				qrcRadioButton.setChecked(True)
-			self.connect(qrcRadioButton, SIGNAL("toggled(bool)"), callWithAddParams(self.rt.updateTunnel, (host, groupname)))
-			tmpLayout.addWidget(qrcRadioButton)
 		groupG.setLayout(tmpLayout)
 		boxLayout.addWidget(groupG)
+
+		s = menu.addSeparator()
+		s.setText('Tunnel')
+		s.setCheckable(True)
+		groupA = QActionGroup(self)
+
+		for (i,(host,displayname)) in enumerate([(None, "(closed)")] + conf):
+
+			# Radio button
+			qrcRadioButton = QRadioButton(displayname)
+			action = menu.addAction(displayname)
+			action.setCheckable(True)
+
+			# Default option
+			if i == 0:
+				action.setChecked(True)
+				qrcRadioButton.setChecked(True)
+
+			# Signals
+			self.connect(qrcRadioButton, SIGNAL("toggled(bool)"), callWithAddParams(self.rt.updateTunnel, (groupname, host)))
+			self.connect(action, SIGNAL("toggled(bool)"), qrcRadioButton, SLOT("setChecked(bool)"))
+			self.connect(qrcRadioButton, SIGNAL("toggled(bool)"), action, SLOT("setChecked(bool)"))
+
+			# Inside the group
+			action.setActionGroup(groupA)
+			tmpLayout.addWidget(qrcRadioButton)
+
 		return groupG
 
 
-	def addOptions2(self, boxLayout, groupname, conf):
+	def addMountOptions(self, boxLayout, groupname, conf, menu):
 
-		group = QGroupBox("SSHFS")
+		# Groups
+		groupG = QGroupBox("Mounts")
 		tmpLayout = QVBoxLayout()
-		group.setLayout(tmpLayout)
+		groupG.setLayout(tmpLayout)
+		boxLayout.addWidget(groupG)
+
+		groupA = QActionGroup(self)
+		groupA.setExclusive(False)
+
 		for (host,displayname) in conf:
+
+			# Checkable controller
 			button = QCheckBox(displayname)
-			self.connect(button, SIGNAL("toggled(bool)"), callWithAddParams(self.rt.switchMount, (host, displayname, groupname)))
+			action = menu.addAction(displayname)
+			action.setCheckable(True)
+
+			# Inside the group
 			tmpLayout.addWidget(button)
-		boxLayout.addWidget(group)
-		return group
+			groupA.addAction(action)
+
+			# Signals
+			self.connect(button, SIGNAL("toggled(bool)"), callWithAddParams(self.rt.switchMount, (host, displayname, groupname)))
+			self.connect(action, SIGNAL("toggled(bool)"), button, SLOT("setChecked(bool)"))
+			self.connect(button, SIGNAL("toggled(bool)"), action, SLOT("setChecked(bool)"))
+
+		return (groupG,groupA)
+
+
+class ControlPanelRuntime:
+
+	def __init__(self, conf):
+		self.tunnel = {}
+		self.mounted = {}
+		for (groupname, groupconfig) in conf['networks']:
+			tunnels = groupconfig.get('tunnels', {})
+			print "tmp", groupname, tunnels
+			self.tunnel[groupname] = tunnels[0][0] if len(tunnels) == 1 else None
+			self.mounted[groupname] = set()
+		self.network = ControlPanelNetwork(conf)
+
+	def updateTunnel(self, groupname, host, x):
+		if x:
+			self.tunnel[groupname] = host
+			if host is not None:
+				self.network.openTunnel(self.tunnel[groupname])
+				for (s,u) in self.mounted[groupname]:
+					self.network.mount(s, u)
+			for btn in self.gui.grpMount[groupname]:
+				btn.setEnabled(x and (host is not None))
+		else:
+			if self.tunnel[groupname] is not None:
+				for (_,u) in self.mounted[groupname]:
+					self.network.umount(u)
+				self.network.closeTunnel(self.tunnel[groupname])
+			self.tunnel[groupname] = None
+
+	def switchMount(self, host, displayname, groupname, x):
+		if x:
+			if self.network.mount(host, displayname):
+				return False
+			self.mounted[groupname].add( (host,displayname) )
+		else:
+			if self.network.umount(displayname):
+				return False
+			self.mounted[groupname].remove( (host,displayname) )
+		return True
+
+	def close(self):
+		print "closing application"
+		for name in self.mounted:
+			for (s,u) in self.mounted[name]:
+				self.network.umount(u)
+		for name in self.network.tunnels.keys():
+			self.network.closeTunnel(name)
+
 
 # TODO mount/umount return value
 
@@ -99,10 +206,9 @@ class ControlPanelNetwork():
 	def openTunnel(self, host):
 		print "opening tunnel", host
 		print "cmd", self.config['paths']['sshCmd'] + [host]
-		env = os.environ
-		env["AUTOSSH_POLL"] = "15"
-		self.tunnels[host] = subprocess.Popen( self.config['paths']['sshCmd'] + [host], close_fds=True, shell=False, env=env)
+		self.tunnels[host] = subprocess.Popen( self.config['paths']['sshCmd'] + [host], close_fds=True, shell=False, env=os.environ)
 		print self.tunnels[host]
+		time.sleep(4)
 
 	def closeTunnel(self, host):
 		print "closing tunnel", host
@@ -110,7 +216,7 @@ class ControlPanelNetwork():
 		self.tunnels[host].wait()
 		del self.tunnels[host]
 
-	def updateTunnels(self):
+	def updateAllTunnels(self):
 		print "sending SIGUSR1 to autossh"
 		for process in self.tunnels.itervalues():
 			os.kill(process.pid, signal.SIGUSR1)
@@ -130,62 +236,6 @@ class ControlPanelNetwork():
 		return ret
 
 
-class ControlPanelRuntime:
-
-	def __init__(self, conf):
-		self.tunnel = {}
-		self.mounted = {}
-		for (groupname, groupconfig) in conf['networks']:
-			tunnels = groupconfig.get('tunnels', {})
-			print "tmp", groupname, tunnels
-			self.tunnel[groupname] = tunnels[0][0] if len(tunnels) == 1 else None
-			self.mounted[groupname] = set()
-		self.network = ControlPanelNetwork(conf)
-
-	def switchTunnel(self, name, x):
-		print "switch", self, name, x, self.tunnel[name]
-		if self.tunnel[name] is not None:
-			if x:
-				self.network.openTunnel(self.tunnel[name])
-				time.sleep(4)
-				for (s,u) in self.mounted[name]:
-					self.network.mount(s, u)
-			else:
-				for (_,u) in self.mounted[name]:
-					self.network.umount(u)
-				self.network.closeTunnel(self.tunnel[name])
-				btn = self.gui.grpTunnel[name].findChild(QRadioButton, name=self.tunnel[name])
-				if (btn is not None) and (len(self.gui.grpTunnel[name].children()) > 2):
-					self.tunnel[name] = None
-					btn.setAutoExclusive(False)
-					btn.setChecked(False)
-					btn.setAutoExclusive(True)
-			self.gui.grpMount[name].setEnabled(x)
-
-	def updateTunnel(self, s, name, t):
-		if t:
-			self.tunnel[name] = s
-		self.switchTunnel(name, t)
-
-	def switchMount(self, s, u, name, t):
-		if t:
-			if self.network.mount(s, u):
-				return False
-			self.mounted[name].add( (s,u) )
-		else:
-			if self.network.umount(u):
-				return False
-			self.mounted[name].remove( (s,u) )
-		return True
-
-	def close(self):
-		print "closing application"
-		for name in self.mounted:
-			for (s,u) in self.mounted[name]:
-				self.network.umount(u)
-		for name in self.network.tunnels.keys():
-			self.network.closeTunnel(name)
-
 def callWithAddParams(f, par):
 	def newf(*args, **kwargs):
 		print "call", f, par, args, kwargs
@@ -195,10 +245,36 @@ def callWithAddParams(f, par):
 
 import ssh_conf
 
+
+class RestorableApplication(QtGui.QApplication):
+	def __init__(self):
+		super(RestorableApplication, self).__init__(sys.argv)
+		self.settings = QSettings("Matt", "sshCP")
+		if self.isSessionRestored():
+			print self.settings.value("aa").toString()
+		#self.connect(btn, SIGNAL("pressed()"), callWithAddParams(self.rt.network.updateAllTunnels, ()))
+		#self.settings.clear()
+
+	def doLastWindow(*x, **y):
+		print "LAST", x, y
+
+	def commitData(self, session):
+		print "commitData"
+
+	def saveState(self, session):
+		print "saveState"
+		self.settings.setValue("aa", "bb")
+		self.settings.sync()
+
+
+os.environ["AUTOSSH_POLL"] = "15"
+
 rt = ControlPanelRuntime(ssh_conf.config)
 
-app = QtGui.QApplication(sys.argv)
+app = RestorableApplication()
+
 tooltip = ControlPanelGUI(rt, ssh_conf.config)
+
 tooltip.show()
 app.exec_()
 rt.close()
