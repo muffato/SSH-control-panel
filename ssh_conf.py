@@ -87,5 +87,5 @@ for x in config['networks']:
 	if 'mounts_direct' in groupconf:
 		validateListTupleTwoStrings(groupconf['mounts_direct'])
 
-print "validated"
+print "sshcp config validated"
 
