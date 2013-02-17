@@ -250,7 +250,9 @@ os.environ["AUTOSSH_POLL"] = "15"
 
 
 def load():
-	ControlPanelGUI(ssh_conf.config)
+	w = ControlPanelGUI(ssh_conf.config)
+	w.show()
+	w.hide()
 
 def unload():
 	pass
