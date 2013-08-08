@@ -21,14 +21,14 @@ config = {
 		}),
 		('ENS', {
 			'tunnels': [
-				('tunnel-wotan', 'wotan')
+				('tunnel-ens', 'jord')
 			],
 			'mounts': [
 				('heimdall.ens.fr', 'heimdall'),
 				('ldog21.ens.fr', 'ldog21')
 			],
 			'mounts_direct': [
-				('wotan.ens.fr', 'wotan')
+				('jord.biologie.ens.fr', 'jord')
 			]
 		}),
 		('IIE', {
