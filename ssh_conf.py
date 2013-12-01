@@ -16,7 +16,7 @@ config = {
 				('tunnel-sanger', 'ssh.sanger')
 			],
 			'mounts': [
-				('lenny-dev64.internal.sanger.ac.uk', 'sanger')
+				('farm-precise-dev64.internal.sanger.ac.uk', 'sanger')
 			]
 		}),
 		('ENS', {
