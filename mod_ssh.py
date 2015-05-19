@@ -68,6 +68,8 @@ class ControlPanelGUI(QtGui.QWidget):
 		self.setWindowTitle('SSH control panel')
 
 		icon = QIcon.fromTheme("secure-card")
+		if icon is None:
+			sys.exit(1)
 		self.setWindowIcon(icon)
 		trayIcon.setIcon(icon)
 
