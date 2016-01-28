@@ -40,7 +40,7 @@ config = {
 	'paths' : {
 		'mountFolder': '/home/matthieu/sshfs',
 		'sshCmd': ['/usr/bin/autossh', '-N'],
-		'mountCmd': ['/usr/bin/sshfs', '-o', 'follow_symlinks', '-o', 'idmap=user'],
+		'mountCmd': ['/usr/bin/sshfs', '-o', 'follow_symlinks', '-o', 'idmap=user', '-o', 'Ciphers=arcfour'],
 		'umountCmd': ['/bin/fusermount', '-u']
 	}
 }
