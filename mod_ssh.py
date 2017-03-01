@@ -20,7 +20,7 @@ class ControlPanelGUI(QtGui.QWidget):
 		QtGui.QWidget.__init__(self, parent)
 		QtGui.QToolTip.setFont(QtGui.QFont('OldEnglish', 10))
 
-		self.setFixedSize(140*len(config['networks']), 320)
+		self.setFixedSize(140*len(config['networks']), 370)
 		self.rt = ControlPanelRuntime(config, self)
 
 		self.grpMount = {}
@@ -66,8 +66,7 @@ class ControlPanelGUI(QtGui.QWidget):
 
 		trayIcon.setToolTip('SSH control panel')
 		self.setWindowTitle('SSH control panel')
-
-		icon = QIcon.fromTheme("secure-card")
+		icon = QIcon.fromTheme("certificate-server")
 		if icon is None:
 			sys.exit(1)
 		self.setWindowIcon(icon)
