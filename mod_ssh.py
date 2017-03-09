@@ -52,13 +52,23 @@ class ControlPanelGUI(QtGui.QWidget):
 		menu.addSeparator()
 		superLayout = QVBoxLayout()
 		superLayout.addLayout(layout)
+
 		icon = QIcon.fromTheme("view-refresh")
 		btn = QPushButton(icon, "Reset")
 		self.connect(btn, SIGNAL("pressed()"), callWithAddParams(self.rt.network.updateAllTunnels, ()))
 		act = menu.addAction(icon, "reset", btn, SLOT("click()"))
 		btn.addAction(act)
 		superLayout.addWidget(btn)
+
+		icon = QIcon.fromTheme("window-close")
+		btn = QPushButton(icon, "Quit")
+		self.connect(btn, SIGNAL("pressed()"), callWithAddParams(self.rt.close, ()))
+		act = menu.addAction(icon, "Quit", btn, SLOT("click()"))
+		btn.addAction(act)
+		superLayout.addWidget(btn)
+
 		self.setLayout(superLayout)
+
 		self.connect(self, SIGNAL("close()"), callWithAddParams(self.rt.close, ()))
 		menu.addAction(QIcon.fromTheme("window-close"), "Quit", self, SLOT("close()"))
 
