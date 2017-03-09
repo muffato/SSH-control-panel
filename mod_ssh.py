@@ -62,15 +62,12 @@ class ControlPanelGUI(QtGui.QWidget):
 
 		icon = QIcon.fromTheme("window-close")
 		btn = QPushButton(icon, "Quit")
-		self.connect(btn, SIGNAL("pressed()"), callWithAddParams(self.rt.close, ()))
+		self.connect(btn, SIGNAL("pressed()"), callWithAddParams(self.close, ()))
 		act = menu.addAction(icon, "Quit", btn, SLOT("click()"))
 		btn.addAction(act)
 		superLayout.addWidget(btn)
 
 		self.setLayout(superLayout)
-
-		self.connect(self, SIGNAL("close()"), callWithAddParams(self.rt.close, ()))
-		menu.addAction(QIcon.fromTheme("window-close"), "Quit", self, SLOT("close()"))
 
 		trayIcon = QSystemTrayIcon(self)
 		self.connect(trayIcon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), callWithAddParams(self.trayClick, ()))
@@ -155,6 +152,15 @@ class ControlPanelGUI(QtGui.QWidget):
 			self.connect(button, SIGNAL("toggled(bool)"), action, SLOT("setChecked(bool)"))
 
 		return (groupG,groupA)
+
+	def closeEvent(self, event):
+		print event, event.type(), event.spontaneous()
+		if event.spontaneous():
+			self.setVisible(not self.isVisible())
+			event.ignore()
+		else:
+			self.rt.close()
+			return QWidget.closeEvent(self, event)
 
 
 class ControlPanelRuntime:
