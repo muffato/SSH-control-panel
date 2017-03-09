@@ -220,9 +220,11 @@ class ControlPanelNetwork():
 		del self.tunnels[host]
 
 	def updateAllTunnels(self):
-		print "sending SIGUSR1 to autossh"
-		for process in self.tunnels.itervalues():
+		for (name, process) in self.tunnels.items():
+			print "sending SIGUSR1 to autossh", name
 			os.kill(process.pid, signal.SIGUSR1)
+		else:
+			print "nothing to reset"
 
 	def mount(self, host, target):
 		print "mounting", host, target
