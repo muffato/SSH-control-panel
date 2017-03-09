@@ -194,6 +194,7 @@ class ControlPanelRuntime:
 				self.network.umount(u)
 		for name in self.network.tunnels.keys():
 			self.network.closeTunnel(name)
+		self.gui.close()
 
 
 # TODO mount/umount return value
