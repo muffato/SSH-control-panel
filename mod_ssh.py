@@ -220,7 +220,6 @@ class ControlPanelNetwork():
 	def __init__(self, config):
 		self.tunnels = {}
 		self.config = config
-		self.devnull = open('/dev/null', 'r')
 
 	def openTunnel(self, host):
 		print "opening tunnel", host
