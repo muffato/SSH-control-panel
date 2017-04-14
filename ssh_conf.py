@@ -5,6 +5,8 @@ config = {
 			'tunnels': [
 				('tunnel-ebi-inside', 'login'),
 				('tunnel-ebi-outside-stargate', 'stargate'),
+				('tunnel-ebi-outside-mitigate', 'mitigate'),
+				('tunnel-ebi-outside-ligate', 'ligate'),
 				('tunnel-ebi-outside-gate', 'gate')
 			],
 			'mounts': [
