@@ -37,14 +37,14 @@ class ControlPanelGUI(QtGui.QWidget):
 				grpTunnel = self.addTunnelOptions(boxLayout, groupname, conf['tunnels'], subMenu)
 				if 'mounts' in conf:
 					subMenu.addSeparator().setText('Dep. mounts')
-					self.grpMount[groupname] = self.addMountOptions(grpTunnel.layout(), groupname, conf['mounts'], subMenu, 'Dep. mounts')
+					self.grpMount[groupname] = self.addMountOptions(grpTunnel.layout(), groupname, conf['mounts'], subMenu, True)
 				self.rt.updateTunnel(groupname, None, True)
 
 			boxLayout.addStretch()
 
 			if 'mounts_direct' in conf:
 				subMenu.addSeparator().setText('Mounts')
-				self.addMountOptions(boxLayout, groupname, conf['mounts_direct'], subMenu, 'Mounts')
+				self.addMountOptions(boxLayout, groupname, conf['mounts_direct'], subMenu, False)
 
 			groupBox.setLayout(boxLayout)
 			layout.addWidget(groupBox)
@@ -124,10 +124,10 @@ class ControlPanelGUI(QtGui.QWidget):
 		return groupG
 
 
-	def addMountOptions(self, boxLayout, groupname, conf, menu, title):
+	def addMountOptions(self, boxLayout, groupname, conf, menu, inTunnel):
 
 		# Groups
-		groupG = QGroupBox(title)
+		groupG = QGroupBox('Dep. mounts' if inTunnel else 'Mounts')
 		tmpLayout = QVBoxLayout()
 		groupG.setLayout(tmpLayout)
 		boxLayout.addWidget(groupG)
@@ -147,7 +147,7 @@ class ControlPanelGUI(QtGui.QWidget):
 			groupA.addAction(action)
 
 			# Signals
-			self.connect(button, SIGNAL("toggled(bool)"), callWithAddParams(self.rt.switchMount, (host, displayname, groupname)))
+			self.connect(button, SIGNAL("toggled(bool)"), callWithAddParams(self.rt.switchMount, (host, displayname, groupname, inTunnel)))
 			self.connect(action, SIGNAL("toggled(bool)"), button, SLOT("setChecked(bool)"))
 
 		return (groupG,groupA)
@@ -181,7 +181,7 @@ class ControlPanelRuntime:
 			if host is not None:
 				self.network.openTunnel(self.tunnel[groupname])
 				for (s,u) in self.mounted[groupname]:
-					self.network.mount(s, u)
+					self.network.mount(s, u, True)
 			allGuiGroups = (self.gui.grpMount[groupname] if groupname in self.gui.grpMount else tuple())
 			for guiGroup in allGuiGroups:
 				guiGroup.setEnabled(host is not None)
@@ -192,9 +192,9 @@ class ControlPanelRuntime:
 				self.network.closeTunnel(self.tunnel[groupname])
 			self.tunnel[groupname] = None
 
-	def switchMount(self, host, displayname, groupname, x):
+	def switchMount(self, host, displayname, groupname, inTunnel, x):
 		if x:
-			if self.network.mount(host, displayname):
+			if self.network.mount(host, displayname, inTunnel):
 				return False
 			self.mounted[groupname].add( (host,displayname) )
 		else:
@@ -241,10 +241,11 @@ class ControlPanelNetwork():
 		else:
 			print "nothing to reset"
 
-	def mount(self, host, target):
+	def mount(self, host, target, inTunnel):
 		print "mounting", host, target
-		print "cmd", self.config['paths']['mountCmd'] + ["%s:" % host, os.path.join(self.config['paths']['mountFolder'], target)]
-		ret = subprocess.call( self.config['paths']['mountCmd'] + ["%s:" % host, os.path.join(self.config['paths']['mountFolder'], target)] )
+		cmd = self.config['paths']['mountCmd'] + (self.config['paths']['depMountOptions'] if inTunnel else []) + ["%s:" % host, os.path.join(self.config['paths']['mountFolder'], target)]
+		print "cmd", cmd
+		ret = subprocess.call(cmd)
 		print ret
 		return ret
 

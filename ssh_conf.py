@@ -42,7 +42,8 @@ config = {
 	'paths' : {
 		'mountFolder': '/home/matthieu/sshfs',
 		'sshCmd': ['/usr/bin/autossh', '-N'],
-		'mountCmd': ['/usr/bin/sshfs', '-o', 'follow_symlinks', '-o', 'idmap=user', '-o', 'Ciphers=arcfour'],
+		'mountCmd': ['/usr/bin/sshfs', '-o', 'follow_symlinks', '-o', 'idmap=user'],
+		'depMountOptions': ['-o', 'Ciphers=arcfour'],
 		'umountCmd': ['/bin/fusermount', '-u']
 	}
 }
@@ -63,7 +64,7 @@ assert isinstance(config, dict)
 assert set(config.keys()) == set(['networks', 'paths'])
 
 assert isinstance(config['paths'], dict)
-assert set(config['paths'].keys()) == set(['mountFolder', 'sshCmd', 'mountCmd', 'umountCmd'])
+assert set(config['paths'].keys()) == set(['mountFolder', 'sshCmd', 'mountCmd', 'umountCmd', 'depMountOptions'])
 assert isinstance(config['paths']['mountFolder'], basestring)
 assert isinstance(config['paths']['sshCmd'], list)
 assert all(isinstance(x, basestring) for x in config['paths']['sshCmd'])
