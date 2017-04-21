@@ -20,7 +20,9 @@ class ControlPanelGUI(QtGui.QWidget):
 		QtGui.QWidget.__init__(self, parent)
 		QtGui.QToolTip.setFont(QtGui.QFont('OldEnglish', 10))
 
-		self.setFixedSize(140*len(config['networks']), 370)
+		height = 3+max(sum(1+len(_) for _ in _[1].values()) + (1 if 'tunnels' in _[1] else 0) + (1 if 'undergrounds' in _[1] else 0) for _ in config['networks'])
+		width = len(config['networks'])
+		self.setFixedSize(140*width, 30*height)
 		self.rt = ControlPanelRuntime(config, self)
 
 		self.grpMount = {}
