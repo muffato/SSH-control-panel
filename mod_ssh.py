@@ -149,7 +149,6 @@ class ControlPanelGUI(QtGui.QWidget):
 			# Signals
 			self.connect(button, SIGNAL("toggled(bool)"), callWithAddParams(self.rt.switchMount, (host, displayname, groupname)))
 			self.connect(action, SIGNAL("toggled(bool)"), button, SLOT("setChecked(bool)"))
-			self.connect(button, SIGNAL("toggled(bool)"), action, SLOT("setChecked(bool)"))
 
 		return (groupG,groupA)
 
