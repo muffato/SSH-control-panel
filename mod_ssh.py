@@ -168,11 +168,13 @@ class ControlPanelRuntime:
 		self.gui = gui
 		self.tunnel = {}
 		self.mounted = {}
+		self.mounted_direct = {}
 		for (groupname, groupconfig) in conf['networks']:
 			tunnels = groupconfig.get('tunnels', {})
 			print "group", groupname, tunnels
 			self.tunnel[groupname] = None
 			self.mounted[groupname] = set()
+			self.mounted_direct[groupname] = set()
 		self.network = ControlPanelNetwork(conf)
 
 	def updateTunnel(self, groupname, host, x):
@@ -193,20 +195,23 @@ class ControlPanelRuntime:
 			self.tunnel[groupname] = None
 
 	def switchMount(self, host, displayname, groupname, inTunnel, x):
+		mount_set = self.mounted if inTunnel else self.mounted_direct
 		if x:
 			if self.network.mount(host, displayname, inTunnel):
 				return False
-			self.mounted[groupname].add( (host,displayname) )
+			mount_set[groupname].add( (host,displayname) )
 		else:
 			if self.network.umount(displayname):
 				return False
-			self.mounted[groupname].remove( (host,displayname) )
+			mount_set[groupname].remove( (host,displayname) )
 		return True
 
 	def close(self):
 		print "closing application"
 		for name in self.mounted:
 			for (s,u) in self.mounted[name]:
+				self.network.umount(u)
+			for (s,u) in self.mounted_direct[name]:
 				self.network.umount(u)
 		for name in self.network.tunnels.keys():
 			self.network.closeTunnel(name)
