@@ -10,7 +10,10 @@ config = {
 				('tunnel-ebi-outside-gate', 'gate')
 			],
 			'mounts': [
-				('login.ebi.ac.uk', 'ebi')
+				('login.ebi.ac', 'ebi')
+			],
+			'mounts_direct': [
+				('login.ebi.ac.uk', 'ebi-direct')
 			]
 		}),
 		('Sanger', {
