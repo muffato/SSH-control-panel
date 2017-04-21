@@ -24,6 +24,7 @@ class ControlPanelGUI(QtGui.QWidget):
 		self.rt = ControlPanelRuntime(config, self)
 
 		self.grpMount = {}
+		self.grpUnderground = {}
 
 		layout = QHBoxLayout()
 		menu = QMenu(self)
@@ -34,10 +35,12 @@ class ControlPanelGUI(QtGui.QWidget):
 			subMenu.setSeparatorsCollapsible(False)
 
 			if 'tunnels' in conf:
-				grpTunnel = self.addTunnelOptions(boxLayout, groupname, conf['tunnels'], subMenu)
+				grpTunnel = self.addTunnelOptions(boxLayout, groupname, conf['tunnels'], subMenu, 'Tunnel', self.rt.updateTunnel)[0]
 				if 'mounts' in conf:
 					subMenu.addSeparator().setText('Dep. mounts')
 					self.grpMount[groupname] = self.addMountOptions(grpTunnel.layout(), groupname, conf['mounts'], subMenu, True)
+				if 'undergrounds' in conf:
+					self.grpUnderground[groupname] = self.addTunnelOptions(grpTunnel.layout(), groupname, conf['undergrounds'], subMenu, 'Underground', self.rt.updateUnderground)
 				self.rt.updateTunnel(groupname, None, True)
 
 			boxLayout.addStretch()
@@ -87,16 +90,16 @@ class ControlPanelGUI(QtGui.QWidget):
 		if reason == QSystemTrayIcon.Trigger:
 			self.setVisible(not self.isVisible())
 
-	def addTunnelOptions(self, boxLayout, groupname, conf, menu):
+	def addTunnelOptions(self, boxLayout, groupname, conf, menu, title, callback):
 
 		# Groups
-		groupG = QGroupBox("Tunnel")
+		groupG = QGroupBox(title)
 		tmpLayout = QVBoxLayout()
 		groupG.setLayout(tmpLayout)
 		boxLayout.addWidget(groupG)
 
 		s = menu.addSeparator()
-		s.setText('Tunnel')
+		s.setText(title)
 		s.setCheckable(True)
 		groupA = QActionGroup(self)
 
@@ -113,7 +116,7 @@ class ControlPanelGUI(QtGui.QWidget):
 				qrcRadioButton.setChecked(True)
 
 			# Signals
-			self.connect(qrcRadioButton, SIGNAL("toggled(bool)"), callWithAddParams(self.rt.updateTunnel, (groupname, host)))
+			self.connect(qrcRadioButton, SIGNAL("toggled(bool)"), callWithAddParams(callback, (groupname, host)))
 			self.connect(action, SIGNAL("toggled(bool)"), qrcRadioButton, SLOT("setChecked(bool)"))
 			self.connect(qrcRadioButton, SIGNAL("toggled(bool)"), action, SLOT("setChecked(bool)"))
 
@@ -121,7 +124,7 @@ class ControlPanelGUI(QtGui.QWidget):
 			action.setActionGroup(groupA)
 			tmpLayout.addWidget(qrcRadioButton)
 
-		return groupG
+		return (groupG,groupA)
 
 
 	def addMountOptions(self, boxLayout, groupname, conf, menu, inTunnel):
@@ -167,6 +170,7 @@ class ControlPanelRuntime:
 	def __init__(self, conf, gui):
 		self.gui = gui
 		self.tunnel = {}
+		self.underground = {}
 		self.mounted = {}
 		self.mounted_direct = {}
 		for (groupname, groupconfig) in conf['networks']:
@@ -175,24 +179,42 @@ class ControlPanelRuntime:
 			self.tunnel[groupname] = None
 			self.mounted[groupname] = set()
 			self.mounted_direct[groupname] = set()
+			self.underground[groupname] = None
+		print self.tunnel
 		self.network = ControlPanelNetwork(conf)
 
 	def updateTunnel(self, groupname, host, x):
+		print "updateTunnel", groupname, host, x
 		if x:
 			self.tunnel[groupname] = host
 			if host is not None:
 				self.network.openTunnel(self.tunnel[groupname])
 				for (s,u) in self.mounted[groupname]:
 					self.network.mount(s, u, True)
-			allGuiGroups = (self.gui.grpMount[groupname] if groupname in self.gui.grpMount else tuple())
+				if self.underground[groupname] is not None:
+					self.network.openTunnel(self.underground[groupname])
+			allGuiGroups = (self.gui.grpMount[groupname] if groupname in self.gui.grpMount else tuple()) + (self.gui.grpUnderground[groupname] if groupname in self.gui.grpUnderground else tuple())
 			for guiGroup in allGuiGroups:
 				guiGroup.setEnabled(host is not None)
 		else:
 			if self.tunnel[groupname] is not None:
 				for (_,u) in self.mounted[groupname]:
 					self.network.umount(u)
+				if self.underground[groupname] is not None:
+					self.network.closeTunnel(self.underground[groupname])
 				self.network.closeTunnel(self.tunnel[groupname])
 			self.tunnel[groupname] = None
+
+	def updateUnderground(self, groupname, host, x):
+		print "updateUnderground", groupname, host, x
+		if x:
+			self.underground[groupname] = host
+			if host is not None:
+				self.network.openTunnel(self.underground[groupname])
+		else:
+			if self.underground[groupname] is not None:
+				self.network.closeTunnel(self.underground[groupname])
+			self.underground[groupname] = None
 
 	def switchMount(self, host, displayname, groupname, inTunnel, x):
 		mount_set = self.mounted if inTunnel else self.mounted_direct

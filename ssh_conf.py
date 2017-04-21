@@ -84,9 +84,11 @@ for x in config['networks']:
 	assert isinstance(groupname, basestring)
 	assert isinstance(groupconf, dict)
 	assert len(groupconf) > 0
-	assert set(groupconf.keys()).issubset(['tunnels', 'mounts', 'mounts_direct'])
+	assert set(groupconf.keys()).issubset(['tunnels', 'undergrounds', 'mounts', 'mounts_direct'])
 	if 'tunnels' in groupconf:
 		validateListTupleTwoStrings(groupconf['tunnels'])
+	if 'undergrounds' in groupconf:
+		validateListTupleTwoStrings(groupconf['undergrounds'])
 	if 'mounts' in groupconf:
 		assert 'tunnels' in groupconf, groupconf.keys()
 		validateListTupleTwoStrings(groupconf['mounts'])
