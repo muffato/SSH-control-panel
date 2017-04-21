@@ -170,8 +170,8 @@ class ControlPanelRuntime:
 		self.mounted = {}
 		for (groupname, groupconfig) in conf['networks']:
 			tunnels = groupconfig.get('tunnels', {})
-			print "tmp", groupname, tunnels
-			self.tunnel[groupname] = tunnels[0][0] if len(tunnels) == 1 else None
+			print "group", groupname, tunnels
+			self.tunnel[groupname] = None
 			self.mounted[groupname] = set()
 		self.network = ControlPanelNetwork(conf)
 
