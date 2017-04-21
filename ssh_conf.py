@@ -9,6 +9,9 @@ config = {
 				('tunnel-ebi-outside-ligate', 'ligate'),
 				('tunnel-ebi-outside-gate', 'gate')
 			],
+			'undergrounds': [
+				('underground-ebi-login', 'login')
+			],
 			'mounts': [
 				('login.ebi.ac', 'ebi')
 			],
@@ -39,6 +42,14 @@ config = {
 		('IIE', {
 			'mounts_direct': [
 				('perso.iiens.net', 'arise')
+			]
+		}),
+		('RPI', {
+			'tunnels': [
+				('tunnel-rpi', 'mattrasp')
+			],
+			'mounts_direct': [
+				('mattrasp.ddns.net', 'rpi')
 			]
 		}),
 	],
