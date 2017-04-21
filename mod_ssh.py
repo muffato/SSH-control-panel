@@ -183,7 +183,7 @@ class ControlPanelRuntime:
 				for (s,u) in self.mounted[groupname]:
 					self.network.mount(s, u)
 			for btn in self.gui.grpMount[groupname]:
-				btn.setEnabled(x and (host is not None))
+				btn.setEnabled(host is not None)
 		else:
 			if self.tunnel[groupname] is not None:
 				for (_,u) in self.mounted[groupname]:
