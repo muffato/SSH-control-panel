@@ -22,7 +22,7 @@ class ControlPanelGUI(QtGui.QWidget):
 
 		height = 3+max(sum(1+len(_) for _ in _[1].values()) + (1 if 'tunnels' in _[1] else 0) + (1 if 'undergrounds' in _[1] else 0) for _ in config['networks'])
 		width = len(config['networks'])
-		self.setFixedSize(140*width, 30*height)
+		self.setFixedSize(1.25*width*self.logicalDpiX(), height*self.fontMetrics().height()*1.5)
 		self.rt = ControlPanelRuntime(config, self)
 
 		self.grpMount = {}
