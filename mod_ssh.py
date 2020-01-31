@@ -1,8 +1,5 @@
 #!/usr/bin/env python2
 
-from PyQt4 import QtGui
-from PyQt4 import QtCore
-
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -14,11 +11,11 @@ import subprocess
 
 
 
-class ControlPanelGUI(QtGui.QWidget):
+class ControlPanelGUI(QWidget):
 
 	def __init__(self, config, parent=None):
-		QtGui.QWidget.__init__(self, parent)
-		QtGui.QToolTip.setFont(QtGui.QFont('OldEnglish', 10))
+		QWidget.__init__(self, parent)
+		QToolTip.setFont(QFont('OldEnglish', 10))
 
 		height = 3+max(sum(1+len(_) for _ in _[1].values()) + (1 if 'tunnels' in _[1] else 0) + (1 if 'undergrounds' in _[1] else 0) for _ in config['networks'])
 		width = len(config['networks'])
