@@ -72,6 +72,7 @@ class ControlPanelGUI(QWidget):
 		self.setLayout(superLayout)
 
 		trayIcon = QSystemTrayIcon(self)
+		self.trayIcon = trayIcon
 
 		trayIcon.setToolTip('SSH control panel')
 		self.setWindowTitle('SSH control panel')
@@ -161,7 +162,7 @@ class ControlPanelGUI(QWidget):
 			event.ignore()
 		else:
 			self.rt.close()
-			return QWidget.closeEvent(self, event)
+			self.trayIcon.hide()
 
 
 class ControlPanelRuntime:
@@ -236,7 +237,6 @@ class ControlPanelRuntime:
 				self.network.umount(u)
 		for name in self.network.tunnels.keys():
 			self.network.closeTunnel(name)
-		self.gui.close()
 
 
 # TODO mount/umount return value
