@@ -75,7 +75,7 @@ class ControlPanelGUI(QWidget):
 
 		trayIcon.setToolTip('SSH control panel')
 		self.setWindowTitle('SSH control panel')
-		icon = QIcon.fromTheme("certificate-server")
+		icon = QIcon.fromTheme("security-medium-symbolic")
 		if icon is None:
 			sys.exit(1)
 		self.setWindowIcon(icon)
