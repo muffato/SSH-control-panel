@@ -64,15 +64,14 @@ class ControlPanelGUI(QWidget):
 
 		icon = QIcon.fromTheme("window-close")
 		btn = QPushButton(icon, "Quit")
-		btn.pressed.connect(callWithAddParams(self.close, ()))
-		act = menu.addAction(icon, "Quit", btn.click)
+		btn.pressed.connect(self.close)
+		act = menu.addAction(icon, "Quit", self.close)
 		btn.addAction(act)
 		superLayout.addWidget(btn)
 
 		self.setLayout(superLayout)
 
 		trayIcon = QSystemTrayIcon(self)
-		trayIcon.activated.connect(callWithAddParams(self.trayClick, ()))
 
 		trayIcon.setToolTip('SSH control panel')
 		self.setWindowTitle('SSH control panel')
@@ -83,6 +82,7 @@ class ControlPanelGUI(QWidget):
 		trayIcon.setIcon(icon)
 
 		trayIcon.setContextMenu(menu)
+		trayIcon.activated.connect(self.trayClick)
 		trayIcon.show()
 
 	def trayClick(self, reason):
