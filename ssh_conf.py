@@ -71,28 +71,28 @@ def validateListTupleTwoStrings(l):
 	assert len(l) > 0
 	assert all(isinstance(x, tuple) for x in l)
 	assert all(len(x) == 2 for x in l)
-	assert all(isinstance(x[0], basestring) for x in l)
-	assert all(isinstance(x[1], basestring) for x in l)
+	assert all(isinstance(x[0], str) for x in l)
+	assert all(isinstance(x[1], str) for x in l)
 
 assert isinstance(config, dict)
 assert set(config.keys()) == set(['networks', 'paths'])
 
 assert isinstance(config['paths'], dict)
 assert set(config['paths'].keys()) == set(['mountFolder', 'sshCmd', 'mountCmd', 'umountCmd', 'depMountOptions'])
-assert isinstance(config['paths']['mountFolder'], basestring)
+assert isinstance(config['paths']['mountFolder'], str)
 assert isinstance(config['paths']['sshCmd'], list)
-assert all(isinstance(x, basestring) for x in config['paths']['sshCmd'])
+assert all(isinstance(x, str) for x in config['paths']['sshCmd'])
 assert isinstance(config['paths']['mountCmd'], list)
-assert all(isinstance(x, basestring) for x in config['paths']['mountCmd'])
+assert all(isinstance(x, str) for x in config['paths']['mountCmd'])
 assert isinstance(config['paths']['umountCmd'], list)
-assert all(isinstance(x, basestring) for x in config['paths']['umountCmd'])
+assert all(isinstance(x, str) for x in config['paths']['umountCmd'])
 
 assert isinstance(config['networks'], list)
 for x in config['networks']:
 	assert isinstance(x, tuple)
 	assert len(x) == 2
 	(groupname,groupconf) = x
-	assert isinstance(groupname, basestring)
+	assert isinstance(groupname, str)
 	assert isinstance(groupconf, dict)
 	assert len(groupconf) > 0
 	assert set(groupconf.keys()).issubset(['tunnels', 'undergrounds', 'mounts', 'mounts_direct'])
