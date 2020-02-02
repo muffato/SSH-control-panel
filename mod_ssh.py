@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 import os
 import sys
@@ -57,22 +57,22 @@ class ControlPanelGUI(QWidget):
 
 		icon = QIcon.fromTheme("view-refresh")
 		btn = QPushButton(icon, "Reset")
-		self.connect(btn, SIGNAL("pressed()"), callWithAddParams(self.rt.network.updateAllTunnels, ()))
-		act = menu.addAction(icon, "reset", btn, SLOT("click()"))
+		btn.pressed.connect(callWithAddParams(self.rt.network.updateAllTunnels, ()))
+		act = menu.addAction(icon, "reset", btn.click)
 		btn.addAction(act)
 		superLayout.addWidget(btn)
 
 		icon = QIcon.fromTheme("window-close")
 		btn = QPushButton(icon, "Quit")
-		self.connect(btn, SIGNAL("pressed()"), callWithAddParams(self.close, ()))
-		act = menu.addAction(icon, "Quit", btn, SLOT("click()"))
+		btn.pressed.connect(callWithAddParams(self.close, ()))
+		act = menu.addAction(icon, "Quit", btn.click)
 		btn.addAction(act)
 		superLayout.addWidget(btn)
 
 		self.setLayout(superLayout)
 
 		trayIcon = QSystemTrayIcon(self)
-		self.connect(trayIcon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), callWithAddParams(self.trayClick, ()))
+		trayIcon.activated.connect(callWithAddParams(self.trayClick, ()))
 
 		trayIcon.setToolTip('SSH control panel')
 		self.setWindowTitle('SSH control panel')
@@ -115,9 +115,9 @@ class ControlPanelGUI(QWidget):
 				qrcRadioButton.setChecked(True)
 
 			# Signals
-			self.connect(qrcRadioButton, SIGNAL("toggled(bool)"), callWithAddParams(callback, (groupname, host)))
-			self.connect(action, SIGNAL("toggled(bool)"), qrcRadioButton, SLOT("setChecked(bool)"))
-			self.connect(qrcRadioButton, SIGNAL("toggled(bool)"), action, SLOT("setChecked(bool)"))
+			qrcRadioButton.toggled.connect(callWithAddParams(callback, (groupname, host)))
+			action.toggled.connect(qrcRadioButton.setChecked)
+			qrcRadioButton.toggled.connect(action.setChecked)
 
 			# Inside the group
 			action.setActionGroup(groupA)
@@ -149,8 +149,8 @@ class ControlPanelGUI(QWidget):
 			groupA.addAction(action)
 
 			# Signals
-			self.connect(button, SIGNAL("toggled(bool)"), callWithAddParams(self.rt.switchMount, (host, displayname, groupname, inTunnel)))
-			self.connect(action, SIGNAL("toggled(bool)"), button, SLOT("setChecked(bool)"))
+			button.toggled.connect(callWithAddParams(self.rt.switchMount, (host, displayname, groupname, inTunnel)))
+			action.toggled.connect(button.setChecked)
 
 		return (groupG,groupA)
 
